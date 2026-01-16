@@ -122,7 +122,7 @@ class ImagePlaceholders {
   /// Creates a default circular loading indicator.
   ///
   /// Renders a [CircularProgressIndicator] centered in the container.
-  /// Used when [useShimmerEffect] is false.
+  /// Used when [ImageView.useShimmerEffect] is false.
   static Widget loadingIndicator({
     double? height,
     double? width,
@@ -148,8 +148,8 @@ class ImagePlaceholders {
 
   /// Creates an error placeholder with an icon and optional message.
   ///
-  /// Displayed when image fetching fails and no [errorAsset] or [errorWidget]
-  /// is provided.
+  /// Displayed when image fetching fails and no [ImageView.errorAsset] or
+  /// [ImageView.errorWidget] is provided.
   static Widget errorPlaceholder({
     double? height,
     double? width,
