@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "aio_image_view-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (aio_image_view-vX.Y.Z)"
+        required: true
+        type: string
+
+jobs:
+  publish:
+    if: github.event_name != 'workflow_dispatch'
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    permissions:
+      id-token: write
+      contents: read
+
+  publish-manual:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Validate tag
+        run: |
+          TAG="${{ inputs.tag }}"
+          case "$TAG" in
+            aio_image_view-v*) ;;
+            *)
+              echo "Tag must match aio_image_view-vX.Y.Z."
+              exit 1
+              ;;
+          esac
+      - name: Set up Flutter
+        uses: flutter-actions/setup-flutter@54feb1e258158303e041b9eaf89314dcfbf6d38a
+      - name: Pub get
+        run: dart pub get
+      - name: Publish (token)
+        env:
+          PUB_DEV_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+          PUB_TOKEN: ${{ secrets.PUB_DEV_TOKEN }}
+        run: |
+          if [ -z "$PUB_DEV_TOKEN" ]; then
+            echo "PUB_DEV_TOKEN is required for manual workflow_dispatch."
+            exit 1
+          fi
+          dart pub publish -f

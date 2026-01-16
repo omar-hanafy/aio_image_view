@@ -1,6 +1,6 @@
 name: aio_image_view
 description: A battle-hardened image rendering and caching library for Flutter with multi-bucket caching, circuit breakers, and network resilience.
-version: 1.0.0-dev.1
+version: 1.0.0
 homepage: https://github.com/omar-hanafy/aio_image_view
 repository: https://github.com/omar-hanafy/aio_image_view
 issue_tracker: https://github.com/omar-hanafy/aio_image_view/issues
