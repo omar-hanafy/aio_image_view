@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1] - 2026-05-24
+
+### Changed
+
+- Updated package metadata for a patch release with no public API changes.
+- Switched analyzer configuration to Flutter lint defaults.
+- Updated `flutter_svg` to `^2.3.0` and `mocktail` to `^1.0.5`.
+- Refreshed generated Linux and Windows example plugin metadata for the `jni` FFI plugin.
+
 ## [1.0.0] - 2026-01-16
 
 ### Initial Release
