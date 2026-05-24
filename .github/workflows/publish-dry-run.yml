@@ -9,17 +9,19 @@ permissions:
   contents: read
 
 jobs:
-  pub-dry-run:
-    name: pub-dry-run
+  dry-run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Flutter
+
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Pub get
-        run: flutter pub get
-      - name: Pub publish dry run
-        run: flutter pub publish --dry-run
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Pub publish dry-run
+        run: dart pub publish --dry-run

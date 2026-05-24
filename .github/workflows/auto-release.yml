@@ -16,12 +16,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.TAG_PUSH_PAT }}
-      - name: Verify tag push PAT
-        run: |
-          if [ -z "${{ secrets.TAG_PUSH_PAT }}" ]; then
-            echo "TAG_PUSH_PAT is required to push tags that trigger publishing."
-            exit 1
-          fi
+
       - name: Check pubspec change
         id: changes
         run: |
@@ -30,26 +25,27 @@ jobs:
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
+
       - name: Compute tag
         id: tag
         if: steps.changes.outputs.changed == 'true'
         run: |
           package=$(awk '/^name:/ {print $2}' pubspec.yaml)
           version=$(awk '/^version:/ {print $2}' pubspec.yaml)
-          if [ -z "$package" ] || [ -z "$version" ]; then
+          if [[ -z "$package" || -z "$version" ]]; then
             echo "Failed to read package name or version from pubspec.yaml"
             exit 1
           fi
-          if [ "${GITHUB_REF_NAME}" = "main" ] && echo "$version" | grep -q '-'; then
+          if [[ "${GITHUB_REF_NAME}" == "main" && "$version" == *-* ]]; then
             echo "Main requires a stable version (no pre-release suffix)."
             exit 1
           fi
-          if [ "${GITHUB_REF_NAME}" = "dev" ] && ! echo "$version" | grep -q '-'; then
+          if [[ "${GITHUB_REF_NAME}" == "dev" && "$version" != *-* ]]; then
             echo "Dev requires a pre-release version suffix (e.g. -dev.1)."
             exit 1
           fi
           echo "tag=${package}-v${version}" >> "$GITHUB_OUTPUT"
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
       - name: Fail if tag exists
         if: steps.changes.outputs.changed == 'true'
         run: |
@@ -58,6 +54,7 @@ jobs:
             echo "Tag $tag already exists. Bump version and re-run."
             exit 1
           fi
+
       - name: Create and push tag
         if: steps.changes.outputs.changed == 'true'
         run: |
@@ -66,10 +63,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$tag"
           git push origin "$tag"
+
       - name: Create GitHub release
         if: steps.changes.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           generate_release_notes: true
-          prerelease: ${{ contains(steps.tag.outputs.version, '-') || github.ref_name == 'dev' }}
+          prerelease: ${{ github.ref_name == 'dev' }}
